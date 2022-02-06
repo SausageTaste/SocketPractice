@@ -1,15 +1,13 @@
+#include <string>
+#include <vector>
 #include <iostream>
 
 #include "socket_win.h"
 
 
 int main() {
+    auto& socket_lib = sungmin::SocketLibrary::inst();
     sungmin::Socket socket;
-
-    if (!socket.init()) {
-        std::cout << "Failed to initiate socket\n";
-        return -1;
-    }
 
     sungmin::SockAddress address;
     address.set_inet_addr("223.130.200.104", 80);
@@ -18,6 +16,22 @@ int main() {
         std::cout << "Failed to connect\n";
         return -1;
     }
+
+    std::string msg = "GET / HTTP/1.1\r\n\r\n";
+
+    if (!socket.send_data(msg.c_str(), msg.size())) {
+        std::cout << "Failed to send data\n";
+        return -1;
+    }
+
+    std::vector<char> server_reply(1024 * 8);
+
+    if (!socket.recieve_data(server_reply.data(), server_reply.size())) {
+        std::cout << "Failed to recieve data\n";
+        return -1;
+    }
+
+    std::cout << "Server reply is following...\n'''\n" << server_reply.data() << "\n'''\n";
 
     std::cout << "All done successfully\n";
     return 0;

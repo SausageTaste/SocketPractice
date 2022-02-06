@@ -1,7 +1,32 @@
+#pragma once
+
+#include <stdexcept>
+
 #include <WinSock2.h>
 
 
 namespace sungmin {
+
+    class SocketLibrary {
+
+    private:
+        WSADATA m_wsa;
+
+    public:
+        SocketLibrary(const SocketLibrary&) = delete;
+        SocketLibrary(SocketLibrary&&) = delete;
+        SocketLibrary& operator=(const SocketLibrary&) = delete;
+        SocketLibrary& operator=(SocketLibrary&&) = delete;
+
+    public:
+        static SocketLibrary& inst();
+
+        SocketLibrary();
+
+        ~SocketLibrary();
+
+    };
+
 
     class SockAddress {
 
@@ -9,19 +34,11 @@ namespace sungmin {
         struct sockaddr_in m_data;
 
     public:
-        void set_inet_addr(const char* const ip_addr, const u_short port_num) {
-            this->m_data.sin_addr.s_addr = inet_addr(ip_addr);
-            this->m_data.sin_family = AF_INET;
-            this->m_data.sin_port = htons(port_num);
-        }
+        void set_inet_addr(const char* const ip_addr, const u_short port_num);
 
-        auto get_raw_ptr() const {
-            return reinterpret_cast<const struct sockaddr*>(&this->m_data);
-        }
+        const sockaddr* get_raw_ptr() const;
 
-        constexpr auto get_raw_size() const {
-            return sizeof(struct sockaddr_in);
-        }
+        constexpr size_t get_raw_size() const;
 
     };
 
@@ -29,30 +46,22 @@ namespace sungmin {
     class Socket {
 
     private:
-        WSADATA m_wsa;
         SOCKET m_socket;
 
     public:
-        bool init() {
-            if (0 != WSAStartup(MAKEWORD(2, 2), &this->m_wsa)) {
-                return false;
-            }
+        Socket(const Socket&) = delete;
+        Socket(Socket&&) = delete;
+        Socket& operator=(const Socket&) = delete;
+        Socket& operator=(Socket&&) = delete;
 
-            this->m_socket = socket(AF_INET, SOCK_STREAM, 0);
-            if (INVALID_SOCKET == this->m_socket) {
-                return false;
-            }
+    public:
+        Socket();
 
-            return true;
-        }
+        bool connect_to(const SockAddress& address);
 
-        bool connect_to(const SockAddress& address) {
-            if (connect(this->m_socket , address.get_raw_ptr(), address.get_raw_size()) < 0) {
-                return false;
-            }
+        bool send_data(const char* const msg, const int msg_len);
 
-            return true;
-        }
+        bool recieve_data(char* const output_buf, const int buf_size);
 
     };
 
