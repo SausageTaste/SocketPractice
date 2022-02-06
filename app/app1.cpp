@@ -5,8 +5,20 @@
 
 int main() {
     sungmin::Socket socket;
-    socket.init();
 
-    std::cout << "Hello world!" << std::endl;
+    if (!socket.init()) {
+        std::cout << "Failed to initiate socket\n";
+        return -1;
+    }
+
+    sungmin::SockAddress address;
+    address.set_inet_addr("223.130.200.104", 80);
+
+    if (!socket.connect_to(address)) {
+        std::cout << "Failed to connect\n";
+        return -1;
+    }
+
+    std::cout << "All done successfully\n";
     return 0;
 }
