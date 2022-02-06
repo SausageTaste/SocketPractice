@@ -1,5 +1,8 @@
 #include "socket_win.h"
 
+#include <ws2tcpip.h>
+#include <tchar.h>
+
 
 namespace sungmin {
 
@@ -24,7 +27,7 @@ namespace sungmin {
 namespace sungmin {
 
     void SockAddress::set_inet_addr(const char* const ip_addr, const u_short port_num) {
-        this->m_data.sin_addr.s_addr = inet_addr(ip_addr);
+        InetPton(AF_INET, _T(ip_addr), &this->m_data.sin_addr.s_addr);
         this->m_data.sin_family = AF_INET;
         this->m_data.sin_port = htons(port_num);
     }
@@ -50,7 +53,7 @@ namespace sungmin {
     }
 
     bool Socket::connect_to(const SockAddress& address) {
-        if (connect(this->m_socket , address.get_raw_ptr(), address.get_raw_size()) < 0) {
+        if (connect(this->m_socket , address.get_raw_ptr(), static_cast<int>(address.get_raw_size())) < 0) {
             return false;
         }
 
