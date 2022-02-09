@@ -32,6 +32,9 @@ namespace sungmin {
 
     class SockAddress {
 
+    public:
+        enum class Family { inet, unknown };
+
     private:
         struct sockaddr_in m_data;
 
@@ -39,6 +42,9 @@ namespace sungmin {
         std::string address() const;
 
         u_short port_num() const;
+
+        constexpr
+        Family family() const;
 
         std::string make_str() const;
 
@@ -50,7 +56,8 @@ namespace sungmin {
 
         const sockaddr* get_raw_ptr() const;
 
-        constexpr size_t get_raw_size() const;
+        constexpr
+        size_t get_raw_size() const;
 
     };
 
@@ -81,6 +88,8 @@ namespace sungmin {
         bool bind_to(const SockAddress& address);
 
         void listen_to_client();
+
+        std::optional<SockAddress> get_address_info();
 
         std::optional<std::pair<Socket, SockAddress>> accept_connection();
 

@@ -16,6 +16,9 @@ int main() {
         return -1;
     }
 
+    const auto server_addr = socket.get_address_info();
+    std::cout << "Server started: " << server_addr->make_str() << '\n';
+
     socket.listen_to_client();
 
     while (auto result = socket.accept_connection()) {

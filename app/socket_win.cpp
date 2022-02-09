@@ -37,6 +37,16 @@ namespace sungmin {
         return htons(this->m_data.sin_port);
     }
 
+    constexpr
+    SockAddress::Family SockAddress::family() const {
+        switch (this->m_data.sin_family) {
+            case AF_INET:
+                return Family::inet;
+            default:
+                return Family::unknown;
+        }
+    }
+
     std::string SockAddress::make_str() const {
         return this->address() + ':' + std::to_string(this->port_num());
     }
@@ -61,15 +71,10 @@ namespace sungmin {
         return reinterpret_cast<const sockaddr*>(&this->m_data);
     }
 
-    constexpr size_t SockAddress::get_raw_size() const {
+    constexpr
+    size_t SockAddress::get_raw_size() const {
         return sizeof(struct sockaddr_in);
     }
-
-}
-
-
-// ClientInfo
-namespace sungmin {
 
 }
 
@@ -128,6 +133,19 @@ namespace sungmin {
 
     void Socket::listen_to_client() {
         listen(this->m_socket, 3);
+    }
+
+    std::optional<SockAddress> Socket::get_address_info() {
+        SockAddress output;
+        int output_size = output.get_raw_size();
+
+        const auto result = getsockname(this->m_socket, output.get_raw_ptr(), &output_size);
+
+        if (result != 0 || output.family() != SockAddress::Family::inet || output_size != output.get_raw_size()) {
+            return std::nullopt;
+        }
+
+        return output;
     }
 
     std::optional<std::pair<Socket, SockAddress>> Socket::accept_connection() {
