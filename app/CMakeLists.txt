@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11.0)
 
 
-# App - App 1
+# App 1
 #-------------------------------------------------------------------------------
 
 add_executable(app1
@@ -18,7 +18,7 @@ if (WIN32)
 endif()
 
 
-# App - Server 1
+# Server 1
 #-------------------------------------------------------------------------------
 
 add_executable(server1

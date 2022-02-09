@@ -17,7 +17,7 @@ add_subdirectory(./lib)
 FetchContent_MakeAvailable(fetch_fmt)
 
 
-# App - App 1
+# Executables
 #-------------------------------------------------------------------------------
 
 add_subdirectory(./app)
