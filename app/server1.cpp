@@ -3,7 +3,7 @@
 #include "socket_win.h"
 
 
-int main(int argc , char *argv[]) {
+int main() {
     auto& socket_lib = sungmin::SocketLibrary::inst();
 
     sungmin::SockAddress address;
@@ -12,7 +12,6 @@ int main(int argc , char *argv[]) {
     sungmin::Socket socket;
 
     if (!socket.bind_to(address)) {
-        printf("Bind failed with error code : %d" , WSAGetLastError());
         std::cout << "Bind failed with error code : " << WSAGetLastError() << '\n';
         return -1;
     }
@@ -20,14 +19,12 @@ int main(int argc , char *argv[]) {
     socket.listen_to_client();
 
     while (auto result = socket.accept_connection()) {
-        std::cout << "Connection accepted\n";
-
-        //Reply to the client
-        std::cout << "Got connection from " << result->second.address() << ':' << result->second.port_num() << '\n';
+        const auto client_addr = result->second.make_str();
+        std::cout << "Connection from " << client_addr << '\n';
 
         std::string msg;
         msg += "Hello mate. Your address is ";
-        msg += result->second.make_str();
+        msg += client_addr;
 
         result->first.send_data(msg.c_str(), msg.size());
     }
