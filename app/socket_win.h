@@ -36,28 +36,15 @@ namespace sungmin {
         struct sockaddr_in m_data;
 
     public:
-        void set_inet_addr(const char* const ip_addr, const u_short port_num);
-
-        void set_inet_any_ip(const u_short port_num);
-
-        const sockaddr* get_raw_ptr() const;
-
-        constexpr size_t get_raw_size() const;
-
-    };
-
-
-    class ClientInfo {
-
-    private:
-        struct sockaddr_in m_data;
-
-    public:
         std::string address() const;
 
         u_short port_num() const;
 
         std::string make_str() const;
+
+        void set_inet_addr(const char* const ip_addr, const u_short port_num);
+
+        void set_inet_any_ip(const u_short port_num);
 
         sockaddr* get_raw_ptr();
 
@@ -95,7 +82,7 @@ namespace sungmin {
 
         void listen_to_client();
 
-        std::optional<std::pair<Socket, ClientInfo>> accept_connection();
+        std::optional<std::pair<Socket, SockAddress>> accept_connection();
 
     };
 

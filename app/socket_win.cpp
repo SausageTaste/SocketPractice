@@ -26,6 +26,21 @@ namespace sungmin {
 
 namespace sungmin {
 
+    std::string SockAddress::address() const {
+        char ipAddress[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(this->m_data.sin_addr), ipAddress, INET_ADDRSTRLEN);
+
+        return std::string{ ipAddress };
+    }
+
+    u_short SockAddress::port_num() const {
+        return htons(this->m_data.sin_port);
+    }
+
+    std::string SockAddress::make_str() const {
+        return this->address() + ':' + std::to_string(this->port_num());
+    }
+
     void SockAddress::set_inet_addr(const char* const ip_addr, const u_short port_num) {
         InetPton(AF_INET, _T(ip_addr), &this->m_data.sin_addr.s_addr);
         this->m_data.sin_family = AF_INET;
@@ -36,6 +51,10 @@ namespace sungmin {
         this->m_data.sin_addr.s_addr = INADDR_ANY;
         this->m_data.sin_family = AF_INET;
         this->m_data.sin_port = htons(port_num);
+    }
+
+    sockaddr* SockAddress::get_raw_ptr() {
+        return reinterpret_cast<sockaddr*>(&this->m_data);
     }
 
     const sockaddr* SockAddress::get_raw_ptr() const {
@@ -51,33 +70,6 @@ namespace sungmin {
 
 // ClientInfo
 namespace sungmin {
-
-    std::string ClientInfo::address() const {
-        char ipAddress[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(this->m_data.sin_addr), ipAddress, INET_ADDRSTRLEN);
-
-        return std::string{ ipAddress };
-    }
-
-    u_short ClientInfo::port_num() const {
-        return htons(this->m_data.sin_port);
-    }
-
-    std::string ClientInfo::make_str() const {
-        return this->address() + ':' + std::to_string(this->port_num());
-    }
-
-    sockaddr* ClientInfo::get_raw_ptr() {
-        return reinterpret_cast<sockaddr*>(&this->m_data);
-    }
-
-    const sockaddr* ClientInfo::get_raw_ptr() const {
-        return reinterpret_cast<const sockaddr*>(&this->m_data);
-    }
-
-    constexpr size_t ClientInfo::get_raw_size() const {
-        return sizeof(struct sockaddr_in);
-    }
 
 }
 
@@ -138,8 +130,8 @@ namespace sungmin {
         listen(this->m_socket, 3);
     }
 
-    std::optional<std::pair<Socket, ClientInfo>> Socket::accept_connection() {
-        ClientInfo client_info;
+    std::optional<std::pair<Socket, SockAddress>> Socket::accept_connection() {
+        SockAddress client_info;
         int client_info_size = client_info.get_raw_size();
 
         const auto new_socket = accept(this->m_socket, client_info.get_raw_ptr(), &client_info_size);
