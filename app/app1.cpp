@@ -7,11 +7,12 @@
 
 int main() {
     auto& socket_lib = sungmin::SocketLibrary::inst();
-    sungmin::Socket socket;
 
     sungmin::SockAddress address;
     address.set_inet_addr("223.130.200.104", 80);
 
+    sungmin::Socket socket;
+    socket.init();
     if (!socket.connect_to(address)) {
         std::cout << "Failed to connect\n";
         return -1;

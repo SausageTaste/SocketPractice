@@ -12,6 +12,7 @@ int main() {
     address.set_inet_any_ip(8888);
 
     sungmin::Socket socket;
+    socket.init();
     if (!socket.bind_to(address)) {
         fmt::print("Bind failed with error code : {}\n", WSAGetLastError());
         return -1;

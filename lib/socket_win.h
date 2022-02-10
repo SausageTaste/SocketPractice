@@ -69,15 +69,25 @@ namespace sungmin {
 
     public:
         Socket(const Socket&) = delete;
-        Socket(Socket&&) = default;
         Socket& operator=(const Socket&) = delete;
-        Socket& operator=(Socket&&) = default;
 
     public:
         Socket();
 
         explicit
         Socket(const SOCKET raw_handle);
+
+        ~Socket();
+
+        Socket(Socket&& other);
+
+        Socket& operator=(Socket&& other);
+
+        bool init();
+
+        void destory();
+
+        bool is_ready() const;
 
         bool connect_to(const SockAddress& address);
 

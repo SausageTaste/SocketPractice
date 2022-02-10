@@ -81,19 +81,55 @@ namespace sungmin {
 
 namespace sungmin {
 
-    Socket::Socket() {
-        this->m_socket = socket(AF_INET, SOCK_STREAM, 0);
-        if (INVALID_SOCKET == this->m_socket) {
-            throw std::runtime_error{"Failed to initiate socket"};
-        }
+    Socket::Socket()
+        : m_socket(INVALID_SOCKET)
+    {
+
     }
 
     Socket::Socket(const SOCKET raw_handle)
         : m_socket(raw_handle)
     {
-        if (INVALID_SOCKET == this->m_socket) {
-            throw std::runtime_error{"Failed to initiate socket"};
+
+    }
+
+    Socket::~Socket() {
+        this->destory();
+    }
+
+    Socket::Socket(Socket&& other) {
+        const auto tmp = other.m_socket;
+        other.m_socket = this->m_socket;
+        this->m_socket = tmp;
+    }
+
+    Socket& Socket::operator=(Socket&& other) {
+        const auto tmp = other.m_socket;
+        other.m_socket = this->m_socket;
+        this->m_socket = tmp;
+
+        return *this;
+    }
+
+    bool Socket::init() {
+        this->m_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (!this->is_ready()) {
+            return false;
         }
+
+        return true;
+    }
+
+    void Socket::destory() {
+        if (!this->is_ready()) {
+            closesocket(this->m_socket);
+            this->m_socket = INVALID_SOCKET;
+        }
+    }
+
+    bool Socket::is_ready() const {
+        return INVALID_SOCKET != this->m_socket;
     }
 
     bool Socket::connect_to(const SockAddress& address) {
