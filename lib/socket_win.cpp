@@ -218,7 +218,7 @@ namespace sungmin {
         const auto recv_size = recv(this->m_socket, output_buf, static_cast<int>(buf_size), 0);
 
         if (SOCKET_ERROR == recv_size)
-            throw std::runtime_error{fmt::format("Failed to recieve data with error code {}", WSAGetLastError())};
+            return std::make_pair(RecvResult::failed, 0);
         else if (0 == recv_size)
             return std::make_pair(RecvResult::closed, 0);
         else
