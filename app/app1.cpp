@@ -5,7 +5,7 @@
 #include "socket_win.h"
 
 
-int main() {
+int main() try {
     auto& socket_lib = sungmin::SocketLibrary::inst();
 
     sungmin::SockAddress address;
@@ -15,11 +15,7 @@ int main() {
     socket.connect_to(address);
 
     const std::string msg = "GET / HTTP/1.1\r\n\r\n";
-    if (!socket.send_data( msg.c_str(), static_cast<int>(msg.size()) )) {
-        std::cout << "Failed to send data\n";
-        return -1;
-    }
-
+    socket.send_data( msg.c_str(), static_cast<int>(msg.size()) );
     socket.shutdown_sending();
 
     std::vector<char> server_reply(32);
@@ -42,4 +38,8 @@ int main() {
                 std::cout << "Unknown recieve result\n";
         }
     }
+}
+catch (const std::exception& e) {
+    std::cout << "An exception caught: " << e.what() << '\n';
+    throw e;
 }

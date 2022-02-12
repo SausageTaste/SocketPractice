@@ -5,21 +5,18 @@
 #include "socket_win.h"
 
 
-int main() {
+int main() try {
     auto& socket_lib = sungmin::SocketLibrary::inst();
 
     sungmin::SockAddress address;
     address.set_inet_any_ip(8888);
 
     sungmin::Socket socket{ sungmin::AddressFamily::ipv4, sungmin::SocketType::tcp };
-    if (!socket.bind_to(address)) {
-        fmt::print("Bind failed with error code : {}\n", WSAGetLastError());
-        return -1;
-    }
+    socket.bind_to(address);
 
     const auto server_addr = socket.get_address_info();
     socket.listen_to_client();
-    fmt::print("Server started: {}\n", server_addr->make_str());
+    fmt::print("Server started: {}\n", server_addr.make_str());
 
     while (auto result = socket.accept_connection()) {
         const auto client_addr = result->second.make_str();
@@ -30,4 +27,8 @@ int main() {
     }
 
 	return 0;
+}
+catch (const std::exception& e) {
+    std::cout << "An exception caught: " << e.what() << '\n';
+    throw e;
 }

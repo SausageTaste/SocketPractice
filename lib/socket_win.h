@@ -90,25 +90,23 @@ namespace sungmin {
 
         Socket& operator=(Socket&& other);
 
-        bool init(const AddressFamily addr_fam, const SocketType type);
-
         void destory();
 
         bool is_ready() const;
 
         void connect_to(const SockAddress& address);
 
-        bool send_data(const char* const msg, const size_t msg_len);
+        void send_data(const char* const msg, const size_t msg_len);
 
         std::pair<RecvResult, size_t> recieve_data(char* const output_buf, const size_t buf_size);
 
-        bool bind_to(const SockAddress& address);
+        void bind_to(const SockAddress& address);
 
         void listen_to_client();
 
         void shutdown_sending();
 
-        std::optional<SockAddress> get_address_info();
+        SockAddress get_address_info();
 
         std::optional<std::pair<Socket, SockAddress>> accept_connection();
 
