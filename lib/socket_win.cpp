@@ -20,6 +20,50 @@ namespace {
         }
     }
 
+    // Returns 0 on error
+    constexpr
+    ADDRESS_FAMILY convert_address_family(const sungmin::AddressFamily addr_fam) {
+        using namespace sungmin;
+
+        switch (addr_fam) {
+            case AddressFamily::ipv4:
+                return AF_INET;
+            case AddressFamily::ipv6:
+                return AF_INET6;
+            default:
+                return AF_UNSPEC;
+        }
+    }
+
+    constexpr
+    sungmin::SocketType convert_sock_type(const int socket_type) {
+        using namespace sungmin;
+
+        switch (socket_type) {
+            case SOCK_STREAM:
+                return SocketType::tcp;
+            case SOCK_DGRAM:
+                return SocketType::udp;
+            default:
+                return SocketType::unknown;
+        }
+    }
+
+    // Returns 0 on error
+    constexpr
+    int convert_sock_type(const sungmin::SocketType socket_type) {
+        using namespace sungmin;
+
+        switch (socket_type) {
+            case SocketType::tcp:
+                return SOCK_STREAM;
+            case SocketType::udp:
+                return SOCK_DGRAM;
+            default:
+                return 0;
+        }
+    }
+
 }
 
 
@@ -107,6 +151,12 @@ namespace sungmin {
 
     }
 
+    Socket::Socket(const AddressFamily addr_fam, const SocketType type) {
+        if (!this->init(addr_fam, type)) {
+            throw std::runtime_error{ "Failed to create a socket" };
+        }
+    }
+
     Socket::~Socket() {
         this->destory();
     }
@@ -125,8 +175,8 @@ namespace sungmin {
         return *this;
     }
 
-    bool Socket::init() {
-        this->m_socket = socket(AF_INET, SOCK_STREAM, 0);
+    bool Socket::init(const AddressFamily addr_fam, const SocketType type) {
+        this->m_socket = socket(::convert_address_family(addr_fam), ::convert_sock_type(type), 0);
 
         if (!this->is_ready()) {
             return false;

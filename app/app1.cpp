@@ -11,8 +11,7 @@ int main() {
     sungmin::SockAddress address;
     address.set_inet_addr("223.130.200.104", 80);
 
-    sungmin::Socket socket;
-    socket.init();
+    sungmin::Socket socket{ sungmin::AddressFamily::ipv4, sungmin::SocketType::tcp };
     if (!socket.connect_to(address)) {
         std::cout << "Failed to connect\n";
         return -1;

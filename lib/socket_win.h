@@ -11,6 +11,8 @@ namespace sungmin {
 
     enum class AddressFamily { ipv4, ipv6, unknown };
 
+    enum class SocketType { tcp, udp, unknown };
+
 
     class SocketLibrary {
 
@@ -77,13 +79,15 @@ namespace sungmin {
         explicit
         Socket(const SOCKET raw_handle);
 
+        Socket(const AddressFamily addr_fam, const SocketType type);
+
         ~Socket();
 
         Socket(Socket&& other);
 
         Socket& operator=(Socket&& other);
 
-        bool init();
+        bool init(const AddressFamily addr_fam, const SocketType type);
 
         void destory();
 

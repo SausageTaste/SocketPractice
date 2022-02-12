@@ -11,8 +11,7 @@ int main() {
     sungmin::SockAddress address;
     address.set_inet_any_ip(8888);
 
-    sungmin::Socket socket;
-    socket.init();
+    sungmin::Socket socket{ sungmin::AddressFamily::ipv4, sungmin::SocketType::tcp };
     if (!socket.bind_to(address)) {
         fmt::print("Bind failed with error code : {}\n", WSAGetLastError());
         return -1;
