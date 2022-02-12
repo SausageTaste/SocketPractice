@@ -12,12 +12,11 @@ FetchContent_Declare(
     GIT_TAG        8.1.1
 )
 
-add_subdirectory(./lib)
-
 FetchContent_MakeAvailable(fetch_fmt)
 
 
-# Executables
+# Subdirectories
 #-------------------------------------------------------------------------------
 
+add_subdirectory(./lib)
 add_subdirectory(./app)

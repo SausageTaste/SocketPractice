@@ -1,5 +1,6 @@
 #include "socket_win.h"
 
+#include <fmt/format.h>
 #include <ws2tcpip.h>
 #include <tchar.h>
 
