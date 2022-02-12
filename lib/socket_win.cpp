@@ -1,8 +1,26 @@
 #include "socket_win.h"
 
-#include <fmt/format.h>
 #include <ws2tcpip.h>
 #include <tchar.h>
+
+
+namespace {
+
+    constexpr
+    sungmin::AddressFamily convert_address_family(const ADDRESS_FAMILY addr_fam) {
+        using namespace sungmin;
+
+        switch (addr_fam) {
+            case AF_INET:
+                return AddressFamily::ipv4;
+            case AF_INET6:
+                return AddressFamily::ipv6;
+            default:
+                return AddressFamily::unknown;
+        }
+    }
+
+}
 
 
 namespace sungmin {
@@ -39,13 +57,8 @@ namespace sungmin {
     }
 
     constexpr
-    SockAddress::Family SockAddress::family() const {
-        switch (this->m_data.sin_family) {
-            case AF_INET:
-                return Family::inet;
-            default:
-                return Family::unknown;
-        }
+    AddressFamily SockAddress::family() const {
+        return ::convert_address_family(this->m_data.sin_family);
     }
 
     std::string SockAddress::make_str() const {
@@ -178,7 +191,7 @@ namespace sungmin {
 
         const auto result = getsockname(this->m_socket, output.get_raw_ptr(), &output_size);
 
-        if (result != 0 || output.family() != SockAddress::Family::inet || output_size != output.get_raw_size()) {
+        if (result != 0 || output.family() != AddressFamily::ipv4 || output_size != output.get_raw_size()) {
             return std::nullopt;
         }
 

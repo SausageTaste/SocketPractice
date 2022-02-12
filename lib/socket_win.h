@@ -9,6 +9,9 @@
 
 namespace sungmin {
 
+    enum class AddressFamily { ipv4, ipv6, unknown };
+
+
     class SocketLibrary {
 
     private:
@@ -32,9 +35,6 @@ namespace sungmin {
 
     class SockAddress {
 
-    public:
-        enum class Family { inet, unknown };
-
     private:
         struct sockaddr_in m_data;
 
@@ -44,7 +44,7 @@ namespace sungmin {
         u_short port_num() const;
 
         constexpr
-        Family family() const;
+        AddressFamily family() const;
 
         std::string make_str() const;
 
