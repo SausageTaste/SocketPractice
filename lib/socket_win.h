@@ -106,6 +106,8 @@ namespace sungmin {
 
         void listen_to_client();
 
+        void shutdown_sending();
+
         std::optional<SockAddress> get_address_info();
 
         std::optional<std::pair<Socket, SockAddress>> accept_connection();

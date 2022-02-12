@@ -20,6 +20,8 @@ int main() {
         return -1;
     }
 
+    socket.shutdown_sending();
+
     std::vector<char> server_reply(32);
 
     while (true) {

@@ -257,6 +257,12 @@ namespace sungmin {
         listen(this->m_socket, 3);
     }
 
+    void Socket::shutdown_sending() {
+        if (SOCKET_ERROR == shutdown(this->m_socket, SD_SEND)) {
+            throw std::runtime_error{"Failed to shutdown for sending"};
+        }
+    }
+
     std::optional<SockAddress> Socket::get_address_info() {
         SockAddress output;
         auto output_size = static_cast<int>(output.get_raw_size());
