@@ -1,10 +1,15 @@
 #include "socket_win.h"
 
+#include <numeric>
+
 #include <ws2tcpip.h>
 #include <tchar.h>
 
 
 namespace {
+
+    constexpr auto INT_MAX_VALUE = static_cast<size_t>((std::numeric_limits<int>::max)());
+
 
     constexpr
     sungmin::AddressFamily convert_address_family(const ADDRESS_FAMILY addr_fam) {
@@ -176,6 +181,7 @@ namespace sungmin {
     }
 
     bool Socket::init(const AddressFamily addr_fam, const SocketType type) {
+        this->destory();
         this->m_socket = socket(::convert_address_family(addr_fam), ::convert_sock_type(type), 0);
 
         if (!this->is_ready()) {
@@ -196,31 +202,47 @@ namespace sungmin {
         return INVALID_SOCKET != this->m_socket;
     }
 
-    bool Socket::connect_to(const SockAddress& address) {
-        if (connect(this->m_socket , address.get_raw_ptr(), static_cast<int>(address.get_raw_size())) < 0) {
-            return false;
+    void Socket::connect_to(const SockAddress& address) {
+        const auto result = connect(this->m_socket, address.get_raw_ptr(), static_cast<int>(address.get_raw_size()));
+
+        if (SOCKET_ERROR == result) {
+            switch (WSAGetLastError()) {
+                case WSANOTINITIALISED:
+                    throw std::runtime_error{"Failed to connect: A successful WSAStartup call must occur before using this function"};
+                case WSAENETDOWN:
+                    throw std::runtime_error{"Failed to connect: The network subsystem has failed"};
+                case WSAEADDRINUSE:
+                    throw std::runtime_error{"Failed to connect: The socket's local address is already in use"};
+                default:
+                    throw std::runtime_error{"Failed to connect: Unknown error"};
+            }
         }
+    }
+
+    bool Socket::send_data(const char* const msg, const size_t msg_len) {
+        if (msg_len >= ::INT_MAX_VALUE)
+            return false;
+
+        const auto msg_len_int = static_cast<int>(msg_len);
+        const auto sent_bytes = send(this->m_socket, msg, msg_len_int, 0);
+
+        if (SOCKET_ERROR == sent_bytes)
+            return false;
+        if (msg_len_int != sent_bytes)
+            return false;
 
         return true;
     }
 
-    bool Socket::send_data(const char* const msg, const int msg_len) {
-        const auto result = send(this->m_socket , msg , msg_len, 0);
-        if (result < 0) {
-            return false;
-        }
+    std::pair<Socket::RecvResult, size_t> Socket::recieve_data(char* const output_buf, const size_t buf_size) {
+        const auto recv_size = recv(this->m_socket, output_buf, static_cast<int>(buf_size), 0);
 
-        return true;
-    }
-
-    bool Socket::recieve_data(char* const output_buf, const int buf_size) {
-        const auto recv_size = recv(this->m_socket, output_buf, buf_size, 0);
-        if (SOCKET_ERROR == recv_size) {
-            return false;
-        }
-
-        output_buf[recv_size] = '\0';
-        return true;
+        if (SOCKET_ERROR == recv_size)
+            return std::make_pair(RecvResult::failed, 0);
+        else if (0 == recv_size)
+            return std::make_pair(RecvResult::closed, 0);
+        else
+            return std::make_pair(RecvResult::ok, recv_size);
     }
 
     bool Socket::bind_to(const SockAddress& address) {
@@ -237,7 +259,7 @@ namespace sungmin {
 
     std::optional<SockAddress> Socket::get_address_info() {
         SockAddress output;
-        int output_size = output.get_raw_size();
+        auto output_size = static_cast<int>(output.get_raw_size());
 
         const auto result = getsockname(this->m_socket, output.get_raw_ptr(), &output_size);
 

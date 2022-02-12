@@ -66,6 +66,9 @@ namespace sungmin {
 
     class Socket {
 
+    public:
+        enum class RecvResult { failed, ok, closed };
+
     private:
         SOCKET m_socket;
 
@@ -93,11 +96,11 @@ namespace sungmin {
 
         bool is_ready() const;
 
-        bool connect_to(const SockAddress& address);
+        void connect_to(const SockAddress& address);
 
-        bool send_data(const char* const msg, const int msg_len);
+        bool send_data(const char* const msg, const size_t msg_len);
 
-        bool recieve_data(char* const output_buf, const int buf_size);
+        std::pair<RecvResult, size_t> recieve_data(char* const output_buf, const size_t buf_size);
 
         bool bind_to(const SockAddress& address);
 
