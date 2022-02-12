@@ -236,7 +236,9 @@ namespace sungmin {
     }
 
     void Socket::listen_to_client() {
-        listen(this->m_socket, 3);
+        if (SOCKET_ERROR == listen(this->m_socket, SOMAXCONN)) {
+            throw std::runtime_error{fmt::format("Listen failed with error code {}", WSAGetLastError())};
+        }
     }
 
     void Socket::shutdown_sending() {
@@ -264,7 +266,7 @@ namespace sungmin {
         const auto new_socket = accept(this->m_socket, client_info.get_raw_ptr(), &client_info_size);
 
         if (INVALID_SOCKET == new_socket) {
-            return std::nullopt;
+            throw std::runtime_error{fmt::format("Failed to accept a client with error code {}", WSAGetLastError())};
         }
 
         return std::make_pair(sungmin::Socket{ new_socket }, client_info);
