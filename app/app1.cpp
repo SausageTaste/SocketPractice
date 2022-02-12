@@ -15,9 +15,9 @@ int main() try {
     socket.connect_to(address);
 
     while (true) {
-        std::string user_input;
         std::cout << ">>>";
-        std::cin >> user_input;
+        std::string user_input;
+        std::getline(std::cin, user_input);
 
         socket.send_data(user_input.data(), user_input.size());
     }
